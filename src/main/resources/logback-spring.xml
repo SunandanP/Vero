@@ -1,0 +1,60 @@
+<configuration>
+
+    <property name="LOG_PATH" value="logs"/>
+
+    <!-- JSON FILE APPENDER (for machine consumption) -->
+    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <file>${LOG_PATH}/vero.jsonl</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/vero-%d{yyyy-MM-dd}.jsonl</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+
+                <timestamp>
+                    <fieldName>timestamp</fieldName>
+                </timestamp>
+
+                <logLevel>
+                    <fieldName>level</fieldName>
+                </logLevel>
+
+                <threadName>
+                    <fieldName>thread</fieldName>
+                </threadName>
+
+                <loggerName>
+                    <fieldName>logger</fieldName>
+                </loggerName>
+
+                <message>
+                    <fieldName>message</fieldName>
+                </message>
+
+                <mdc/>
+
+                <stackTrace>
+                    <fieldName>stacktrace</fieldName>
+                </stackTrace>
+
+            </providers>
+        </encoder>
+
+    </appender>
+
+
+    <!-- KEEP SPRING BOOT DEFAULT CONSOLE -->
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+
+    <!-- ADD JSON FILE APPENDER TO ROOT -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="JSON_FILE"/>
+    </root>
+
+</configuration>
