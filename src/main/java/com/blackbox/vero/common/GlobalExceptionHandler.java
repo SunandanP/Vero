@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.blackbox.vero.ai.exception.GeminiApiException;
 import com.blackbox.vero.rule_engine.dto.response.ApiResponse;
 import com.blackbox.vero.rule_engine.exception.RuleEngineValidationError;
 
@@ -21,6 +22,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(ex.getMessage(), "VALIDATION_ERROR"));
+    }
+
+    @ExceptionHandler(GeminiApiException.class)
+    public ResponseEntity<ApiResponse<Void>> handleGeminiApiException(GeminiApiException ex) {
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ApiResponse.error(ex.getMessage(), "AI_SERVICE_ERROR"));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

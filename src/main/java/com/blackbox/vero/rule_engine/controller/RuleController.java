@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blackbox.vero.ai.dto.NaturalLanguageRuleRequest;
+import com.blackbox.vero.ai.dto.NaturalLanguageRuleResponse;
+import com.blackbox.vero.ai.service.NaturalLanguageRuleService;
 import com.blackbox.vero.rule_engine.dto.request.CreateRuleRequest;
 import com.blackbox.vero.rule_engine.dto.request.EvaluateRuleRequest;
 import com.blackbox.vero.rule_engine.dto.request.UpdateRuleRequest;
@@ -37,6 +40,7 @@ public class RuleController {
 
     private final RuleBuilderService ruleBuilderService;
     private final RuleEvaluator ruleEvaluator;
+    private final NaturalLanguageRuleService naturalLanguageRuleService;
 
     /**
      * Create a new rule.
@@ -200,5 +204,48 @@ public class RuleController {
         
         request.setRuleSlug(slug);
         return evaluateRule(request);
+    }
+
+    // ==================== Natural Language Rule Creation ====================
+
+    /**
+     * Parse a natural language description into a rule structure without saving.
+     * Use this to preview what the AI will generate before committing.
+     * 
+     * POST /api/v1/rules/natural-language/parse
+     * 
+     * Example request:
+     * {
+     *   "description": "I need a fraud detection rule where age must be over 18 and monthly spending should be at least 800",
+     *   "ruleName": "Fraud Detection Rule",
+     *   "ruleSlug": "fraud-detection"
+     * }
+     */
+    @PostMapping("/natural-language/parse")
+    public ResponseEntity<ApiResponse<NaturalLanguageRuleResponse>> parseNaturalLanguageRule(
+            @Valid @RequestBody NaturalLanguageRuleRequest request) {
+        NaturalLanguageRuleResponse response = naturalLanguageRuleService.parseRule(request);
+        return ResponseEntity.ok(ApiResponse.success(response, "Rule parsed successfully"));
+    }
+
+    /**
+     * Parse a natural language description and create the rule in the database.
+     * 
+     * POST /api/v1/rules/natural-language
+     * 
+     * Example request:
+     * {
+     *   "description": "I need a fraud detection rule where age must be over 18 and monthly spending should be at least 800",
+     *   "ruleName": "Fraud Detection Rule",
+     *   "ruleSlug": "fraud-detection"
+     * }
+     */
+    @PostMapping("/natural-language")
+    public ResponseEntity<ApiResponse<NaturalLanguageRuleResponse>> createNaturalLanguageRule(
+            @Valid @RequestBody NaturalLanguageRuleRequest request) {
+        NaturalLanguageRuleResponse response = naturalLanguageRuleService.parseAndCreateRule(request);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.success(response, "Rule created successfully from natural language"));
     }
 }

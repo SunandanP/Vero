@@ -17,3 +17,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+# Gemini AI Configuration
+gemini:
+  api-key: ${GEMINI_API_KEY:AIzaSyAVLJZx9xWavI4UhuUOWO6KjFiEQVKIpMk}
+  base-url: https://generativelanguage.googleapis.com/v1beta
+  model: gemini-flash-lite-latest
+  temperature: 0.3
+  max-output-tokens: 50000
